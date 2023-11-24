@@ -1,0 +1,9 @@
+http://localhost/inscriptions
+Accept: application/json
+
+###
+
+http://127.0.0.1/output/b7032ed356576079c9708cabadc153da27a686549245f53e968a27fe8406e47a:0
+# http://localhost/r/metadata/687520dbd572ed549823bbd9b574a1eaea703db1d5cbe2cadcc6aa8e23e1924di0
+# http://localhost/sat/185000000000
+Accept: application/json
