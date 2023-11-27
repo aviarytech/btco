@@ -1,4 +1,4 @@
-import { fetchContent, fetchInscription, fetchMetadata, fetchSatDetails } from "./api"
+import { fetchContent, fetchInscription, fetchMetadata, fetchSatAtIndexDetails, fetchSatDetails } from "./api"
 
 export const resolve = async (
   did: string,
@@ -8,32 +8,33 @@ export const resolve = async (
   didResolutionMetadata: any,
   didDocumentMetadata: any
 }> => {
-  const sat = await fetchSatDetails(did.split('did:btco:')[1]);
-  const inscriptionId = sat.inscriptions[sat.inscriptions.length - 1];
-  const content = await fetchContent(inscriptionId)
+  const sat = did.split('did:btco:')[1];
+  const details = await fetchSatDetails(sat);
+  const {id} = await fetchSatAtIndexDetails(sat, -1);
+  const content = await fetchContent(id)
   if (content === '🔥') {
     return {
       didDocument: null,
       didResolutionMetadata: {
         deactivated: true,
-        inscriptionId
+        inscriptionId: id
       },
       didDocumentMetadata: {
-        writes: sat.inscriptions.length
+        writes: details.inscriptions.length
       }
     }
   }
-  const didDocument = await fetchMetadata(inscriptionId)
+  const didDocument = await fetchMetadata(id)
   if (didDocument.id !== content) {
     throw new Error(`Metadata ${didDocument.id} does not match inscription content ${content}`);
   }
   return {
     didDocument,
     didResolutionMetadata: {
-      inscriptionId
+      inscriptionId: id
     },
     didDocumentMetadata: {
-      writes: sat.inscriptions.length
+      writes: details.inscriptions.length
     }
   }
 }

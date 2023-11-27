@@ -33,6 +33,10 @@ export const create = async (
     `${filename}.json`,
     "--file",
     `${filename}.txt`,
+    "--postage",
+    "551sat",
+    "--metaprotocol",
+    "did:btco",
     "--satpoint",
     satpoint
   ]
@@ -90,6 +94,10 @@ export const update = async (
     `${filename}.json`,
     "--file",
     `${filename}.txt`,
+    "--postage",
+    "551sat",
+    "--metaprotocol",
+    "did:btco",
     "--satpoint",
     `${satpoint}`
   ]
@@ -139,6 +147,10 @@ export const deactivate = async (
     options.feeRate.toString(),
     "--file",
     `${filename}.txt`,
+    "--postage",
+    "551sat",
+    "--metaprotocol",
+    "did:btco",
     "--satpoint",
     `${satpoint}`
   ]

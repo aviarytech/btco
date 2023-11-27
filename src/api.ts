@@ -12,6 +12,12 @@ export async function fetchSatDetails(sat: number | string) {
   return {num: number, name, decimal, inscriptions, satpoint};
 }
 
+export async function fetchSatAtIndexDetails(sat: number | string, index: number) {
+  const response = await fetch(`${Bun.env.ORD_API}/r/sat/${sat}/at/${index}`, {headers: {Accept: 'application/json'}});
+  const {id} = await response.json();
+  return {id};
+}
+
 export async function fetchInscription(id: string) {
   const response = await fetch(`${Bun.env.ORD_API}/inscription/${id}`, {headers: {Accept: 'application/json'}});
   if (response.status === 404) {
