@@ -16,7 +16,7 @@ export const create = async (
   if(method !== 'btco') {
     throw new Error(`DID method ${method} not supported.`);
   }
-  const {satpoint} = await fetchSatDetails(did.split('did:btco:')[1]);
+  const {satpoint} = await fetchSatDetails(did.split('did:btco:')[1], options);
   const filename = `/tmp/${did}`;
   await Bun.write(`${filename}.json`, JSON.stringify(didDocument));
   if (options.validateDoc && !await lintDidDocument(`${filename}.json`)) {
@@ -75,7 +75,7 @@ export const update = async (
   didRegistrationMetadata: {fees: number, inscription: string} | null,
   didDocumentMetadata: any
 }> => {
-  const {satpoint} = await fetchSatDetails(did.split('did:btco:')[1]);
+  const {satpoint} = await fetchSatDetails(did.split('did:btco:')[1], options);
 
   const filename = `/tmp/${did}`;
   await Bun.write(`${filename}.json`, JSON.stringify(didDocument));
@@ -134,7 +134,7 @@ export const deactivate = async (
   didRegistrationMetadata: {fees: number, inscription: string} | null,
   didDocumentMetadata: any
 }> => {
-  const {satpoint} = await fetchSatDetails(did.split('did:btco:')[1]);
+  const {satpoint} = await fetchSatDetails(did.split('did:btco:')[1], options);
 
   const filename = `/tmp/${did}`;
   await Bun.write(`${filename}.txt`, '🔥');

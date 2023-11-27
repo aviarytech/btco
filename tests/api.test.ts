@@ -1,7 +1,6 @@
 import { describe, expect, test, beforeAll } from "bun:test";
 
-import { create, update } from '../src/registration';
-import { decodeCborHex, getSats, lintDidDocument, waitForInscription } from "../src/utils";
+import { waitForInscription } from "../src/utils";
 import { fetchMetadata } from "../src/api";
 const didDoc = await Bun.file('./tests/fixtures/didDoc.json').json();
 
@@ -26,12 +25,16 @@ describe('api', () => {
     const proc = Bun.spawnSync(cmd);
     const {inscriptions} = JSON.parse(proc.stdout.toString());
     inscriptionId = inscriptions[0].id;
+
+    console.log(`mining inscription...`)
     Bun.spawnSync(["bitcoin-cli", "-regtest", "generatetoaddress", "1", "bcrt1pxrgctvy8dm5cn69wk3sjscf4zt8z8uvamhdt97pcce9me3lv2fgq9m3p5u"])
-    await waitForInscription(inscriptionId);
+    await waitForInscription(inscriptionId, {network: 'regtest'});
+    console.log(`...inscription mined!`)
   })
 
   test('metadata', async () => {
-    const meta = await fetchMetadata(inscriptionId)
+    const meta = await fetchMetadata(inscriptionId, {network: 'regtest'})
+    expect(meta).toBeTruthy();
     expect(meta.id).toEqual(didDoc.id);
   })
 })

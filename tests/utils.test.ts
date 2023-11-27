@@ -7,7 +7,7 @@ const didDoc = await Bun.file('./tests/fixtures/didDoc.json').json();
 describe('utils', () => {
 
   test('list sats', async () => {
-    const sats = await getSats();
+    const sats = await getSats({network: 'regtest'});
     expect(sats.length).toBeGreaterThan(1);
   })
 

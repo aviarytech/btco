@@ -13,13 +13,24 @@ describe('registration', () => {
   let validateDoc = false;
 
   beforeAll(async () => {
-    const sats = await getSats();
+    const sats = await getSats({network: 'regtest'});
     sat = sats[sats.length-1];
     didDoc = await Bun.file('./tests/fixtures/didDoc.json').text();
     didDoc = didDoc.replaceAll('SAT', sat.num);
     didDoc = JSON.parse(didDoc);
     console.log(`Running test suite for ${didDoc.id}`)
   });
+
+  afterEach(async () => {
+    console.log(`mining inscription...`)
+    Bun.spawnSync(["bitcoin-cli", "-regtest", "generatetoaddress", "1", "bcrt1pxrgctvy8dm5cn69wk3sjscf4zt8z8uvamhdt97pcce9me3lv2fgq9m3p5u"])
+    await waitForInscription(latestJobId, {network: 'regtest'});
+    console.log(`...inscription mined!`)
+  })
+
+  afterAll(async () => {
+    console.log(`Total fees spent: ${fees} sats`);
+  })
 
   test("1. Create", async () => {
     const reg = await create(
@@ -44,7 +55,7 @@ describe('registration', () => {
   }, 10000);
 
   test("2. Resolve after create", async () => {
-    const resolved = await resolve(didDoc.id);
+    const resolved = await resolve(didDoc.id, {network: 'regtest'});
     expect(resolved.didDocument.id).toEqual(didDoc.id);
     expect(resolved.didDocumentMetadata.writes).toEqual(1);
     expect(resolved.didResolutionMetadata.inscriptionId).toEqual(latestJobId);
@@ -72,7 +83,7 @@ describe('registration', () => {
   }, 10000);
 
   test("4. Resolve after update", async () => {
-    const resolved = await resolve(didDoc.id);
+    const resolved = await resolve(didDoc.id, {network: 'regtest'});
     expect(resolved.didDocument.id).toEqual(didDoc.id);
     expect(resolved.didDocumentMetadata.writes).toEqual(2);
     expect(resolved.didResolutionMetadata.inscriptionId).toEqual(latestJobId);
@@ -96,21 +107,10 @@ describe('registration', () => {
   });
 
   test("6. Resolve after deactivate", async () => {
-    const resolved = await resolve(didDoc.id);
+    const resolved = await resolve(didDoc.id, {network: 'regtest'});
     expect(resolved.didDocument).toBeNull();
     expect(resolved.didDocumentMetadata.writes).toEqual(3);
     expect(resolved.didResolutionMetadata.inscriptionId).toEqual(latestJobId);
     expect(resolved.didResolutionMetadata.deactivated).toBeTrue();
   });
-
-  afterEach(async () => {
-    console.log(`mining inscription...`)
-    Bun.spawnSync(["bitcoin-cli", "-regtest", "generatetoaddress", "1", "bcrt1pxrgctvy8dm5cn69wk3sjscf4zt8z8uvamhdt97pcce9me3lv2fgq9m3p5u"])
-    await waitForInscription(latestJobId);
-    console.log(`...inscription mined!`)
-  })
-
-  afterAll(async () => {
-    console.log(`Total fees spent: ${fees} sats`);
-  })
 })

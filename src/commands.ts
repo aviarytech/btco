@@ -1,11 +1,18 @@
 import { create, deactivate, update } from "./registration";
 import { resolve } from "./resolution";
-import { getSats, waitForInscription } from "./utils"
+import { getSats, getDIDs, waitForInscription } from "./utils"
 
-export const listSats = async () => {
-  const sats = await getSats();
+export const listBlankSats = async (options = {network: 'mainnet'}) => {
+  const sats = await getSats(options);
   sats.forEach((s: {num: number, name: string, decimal: string}) => {
     console.log(`did:btco:${s.name}`.padEnd(25, ' '), ' - ', `did:btco:${s.num}`.padEnd(25, ' '), ' - ', `did:btco:${s.decimal}`);
+  })
+}
+
+export const listDIDs = async (options = {network: 'mainnet'}) => {
+  const dids = await getDIDs(options);
+  dids.forEach((d: any) => {
+    console.log(`${d.didResolutionMetadata.deactivated ? '🔥' : '✅'} -  ${d.didResolutionMetadata.did.padEnd(25, ' ')} - ${d.didDocumentMetadata.writes} writes`)
   })
 }
 
@@ -27,7 +34,7 @@ export const createDID = async (
     throw new Error(`Failed to create DID ${did}`);
   }
   console.log(`Inscription ${jobId} broadcast waiting to be mined...`);
-  await waitForInscription(jobId);
+  await waitForInscription(jobId, options);
   console.log(`${did} successfully created!, ${Bun.env.ORD_API}/sat/${did.split('did:btco:')[1]}`);
 }
 
@@ -49,7 +56,7 @@ export const updateDID = async (
     throw new Error(`Failed to update DID ${did}`);
   }
   console.log(`Inscription ${jobId} broadcast waiting to be mined...`);
-  await waitForInscription(jobId);
+  await waitForInscription(jobId, );
   console.log(`${did} successfully updated!, ${Bun.env.ORD_API}/sat/${did.split('did:btco:')[1]}`);
 }
 
@@ -66,7 +73,7 @@ export const deactivateDID = async (
     throw new Error(`Failed to deactivate DID ${did}`);
   }
   console.log(`Inscription ${jobId} broadcast waiting to be mined...`);
-  await waitForInscription(jobId);
+  await waitForInscription(jobId, options);
   console.log(`${did} successfully deactivated!, ${Bun.env.ORD_API}/sat/${did.split('did:btco:')[1]}`);
 }
 

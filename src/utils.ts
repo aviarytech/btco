@@ -1,31 +1,69 @@
 import { fetchInscription, fetchSatDetails, fetchSatNumber } from "./api";
 import {decode} from 'cbor2';
+import { resolve } from "./resolution";
 
-export const getSats = async () => {
-  const inscriptionCMD = Bun.spawn(["ord", "-r", "wallet", "inscriptions"]);
+export const getDIDs = async (options = {network: 'mainnet'}) => {
+  const inscriptionCMD = Bun.spawn([
+    "ord",
+    options.network === 'regtest' ? "-r" : "",
+    "wallet",
+    "inscriptions"
+  ]);
+  const inscriptionsJson = await new Response(inscriptionCMD.stdout).json();
+  const inscriptions = inscriptionsJson.map((o: any) => o.inscription);
+  const dids = [];
+  for (const inscription of inscriptions) {
+    const sat = await fetchInscription(inscription, options);
+    if (sat) {
+      try {
+        const did = await resolve(`did:btco:${sat.sat}`, options)
+        if (did) {
+          dids.push(did);
+        }
+      } catch(e) {
+        // Do nothing
+      }
+    }
+  }
+  return dids;
+}
+
+export const getSats = async (options = {network: 'mainnet'}) => {
+  const inscriptionCMD = Bun.spawn([
+    "ord",
+    options.network === 'regtest' ? "-r" : "",
+    "wallet",
+    "inscriptions"
+  ]);
   const inscriptionsJson = await new Response(inscriptionCMD.stdout).json();
   const inscriptions = inscriptionsJson.map((o: any) => o.location);
-  const outputsCMD = Bun.spawn(["ord", "-r", "wallet", "outputs"]);
+  const outputsCMD = Bun.spawn([
+    "ord",
+    options.network === 'regtest' ? "-r" : "",
+    "wallet",
+    "outputs"
+  ]);
   const outputsJson = await new Response(outputsCMD.stdout).json();
   let outputs = outputsJson.map((o: any) => o.output).filter(
     (o: string) => !inscriptions.some((i: string) => o.startsWith(i.split(':')[0]))
   );
   const nums = [];
   for (const output of outputs) {
-    nums.push(await fetchSatNumber(output));
+    nums.push(await fetchSatNumber(output, options));
   }
   const sats = [];
   for (const num of nums) {
-    sats.push(await fetchSatDetails(num));
+    sats.push(await fetchSatDetails(num, options));
   }
   
   return sats.filter(s => s.satpoint);
 }
 
-export const waitForInscription = async (inscriptionId: string) => {
+export const waitForInscription = async (inscriptionId: string, options = {network: 'mainnet'}) => {
   let inscription;
   do {
-    inscription = await fetchInscription(inscriptionId);
+    inscription = await fetchInscription(inscriptionId, options);
+    await new Promise(resolve => setTimeout(resolve, 1000));
   } while (!inscription);
   return true;
 }

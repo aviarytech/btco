@@ -5,7 +5,7 @@ import { fileURLToPath } from "url";
 import path from "path";
 import chalk from "chalk";
 import figlet from "figlet";
-import { createDID, deactivateDID, listSats, resolveDID, updateDID } from "./commands";
+import { createDID, deactivateDID, listBlankSats, listDIDs, resolveDID, updateDID } from "./commands";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,8 +22,16 @@ program
 program
   .command('list')
   .alias('ls')
-  .description('List all available DIDs in wallet')
-  .action(listSats)
+  .description('List DIDs in wallet')
+  .option('-r, --regtest', 'Use regtest network')
+  .option('-b, --blank', 'List available DIDs in wallet')
+  .action(async (options) => {
+    if (options.blank) {
+      listBlankSats({network: options.regtest ? 'regtest' : 'mainnet'});
+    } else {
+      listDIDs({network: options.regtest ? 'regtest' : 'mainnet'});
+    }
+  })
 
 program
   .command('create <did> <document>')
