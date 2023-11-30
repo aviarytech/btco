@@ -1,7 +1,8 @@
 import { describe, expect, test, afterEach, beforeAll, afterAll } from "bun:test";
 
 import { create, deactivate, update } from '../src/registration';
-import { getSats, waitForInscription } from "../src/utils";
+import { waitForInscription } from "../src/utils";
+import { getBlankSats } from "../src/wallet";
 import { resolve } from "../src/resolution";
 
 describe('registration', () => {
@@ -13,10 +14,10 @@ describe('registration', () => {
   let validateDoc = false;
 
   beforeAll(async () => {
-    const sats = await getSats({network: 'regtest'});
+    const sats = await getBlankSats({network: 'regtest'});
     sat = sats[sats.length-1];
     didDoc = await Bun.file('./tests/fixtures/didDoc.json').text();
-    didDoc = didDoc.replaceAll('SAT', sat.num);
+    didDoc = didDoc.replaceAll('SAT', sat.details.sat.num);
     didDoc = JSON.parse(didDoc);
     console.log(`Running test suite for ${didDoc.id}`)
   });

@@ -1,4 +1,5 @@
-import { fetchContent, fetchMetadata, fetchSatAtIndexDetails, fetchSatDetails } from "./api"
+import { fetchContent, fetchMetadata, fetchSatAtInscriptionIndexDetails, fetchSatDetails } from "./api"
+import { getPrefix } from "./utils"
 
 export const resolve = async (
   did: string,
@@ -15,9 +16,9 @@ export const resolve = async (
     writes: number
   }
 }> => {
-  const sat = did.split('did:btco:')[1];
+  const sat = did.split(getPrefix(options))[1];
   const details = await fetchSatDetails(sat, options);
-  const {id} = await fetchSatAtIndexDetails(sat, -1, options);
+  const {id} = await fetchSatAtInscriptionIndexDetails(sat, -1, options);
   const content = await fetchContent(id, options)
   if (content === '🔥') {
     return {
@@ -41,9 +42,9 @@ export const resolve = async (
   } else if (didDocument.id !== did) {
     error = `DID Document id ${didDocument.id} does not match ${did}`;
   } else if (
-    did.split('did:btco:')[1] !== details.num.toString() &&
-    did.split('did:btco:')[1] !== details.name &&
-    did.split('did:btco:')[1] !== details.decimal
+    did.split(getPrefix(options))[1] !== details.num.toString() &&
+    did.split(getPrefix(options))[1] !== details.name &&
+    did.split(getPrefix(options))[1] !== details.decimal
   ) {
     error = `DID ${did} has been written on sat (${details.num}, ${details.name}, ${details.decimal})`
   }

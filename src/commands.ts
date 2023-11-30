@@ -1,12 +1,24 @@
 import { create, deactivate, update } from "./registration";
 import { resolve } from "./resolution";
-import { getSats, getDIDs, waitForInscription } from "./utils"
+import { waitForInscription, getPrefix } from "./utils"
+import { getBlankSats, getDIDs } from './wallet';
 
 export const listBlankSats = async (options = {network: 'mainnet'}) => {
-  const sats = await getSats(options);
-  sats.forEach((s: {num: number, name: string, decimal: string}) => {
-    console.log(`did:btco:${s.name}`.padEnd(25, ' '), ' - ', `did:btco:${s.num}`.padEnd(25, ' '), ' - ', `did:btco:${s.decimal}`);
+  const sats = await getBlankSats(options);
+  if (sats.length > 0) {
+    console.log(`DIDs available:`);
+    console.log('')
+  }
+  sats.forEach((s: {details: {sat: {num: number, name: string, decimal: string}}}) => {
+    console.log(
+      `${getPrefix(options)}${s.details.sat.name}`.padEnd(25, ' '), ' - ',
+      `${getPrefix(options)}${s.details.sat.num}`.padEnd(25, ' '), ' - ',
+      `${getPrefix(options)}${s.details.sat.decimal}`
+    );
   })
+  if (sats.length === 0) {
+    console.log('No sats found');
+  }
 }
 
 export const listDIDs = async (options = {network: 'mainnet'}) => {
@@ -14,6 +26,9 @@ export const listDIDs = async (options = {network: 'mainnet'}) => {
   dids.forEach((d: any) => {
     console.log(`${d.didResolutionMetadata.deactivated ? '🔥' : '✅'} -  ${d.didResolutionMetadata.did.padEnd(25, ' ')} - ${d.didDocumentMetadata.writes} writes`)
   })
+  if (dids.length === 0) {
+    console.log(`No DIDs found.`);
+  }
 }
 
 export const createDID = async (
@@ -35,7 +50,7 @@ export const createDID = async (
   }
   console.log(`Inscription ${jobId} broadcast waiting to be mined...`);
   await waitForInscription(jobId, options);
-  console.log(`${did} successfully created!, ${Bun.env.ORD_API}/sat/${did.split('did:btco:')[1]}`);
+  console.log(`${did} successfully created!, ${Bun.env.ORD_API}/sat/${did.split(getPrefix(options))[1]}`);
 }
 
 export const updateDID = async (
@@ -57,7 +72,7 @@ export const updateDID = async (
   }
   console.log(`Inscription ${jobId} broadcast waiting to be mined...`);
   await waitForInscription(jobId, );
-  console.log(`${did} successfully updated!, ${Bun.env.ORD_API}/sat/${did.split('did:btco:')[1]}`);
+  console.log(`${did} successfully updated!, ${Bun.env.ORD_API}/sat/${did.split(getPrefix(options))[1]}`);
 }
 
 export const deactivateDID = async (
@@ -74,14 +89,14 @@ export const deactivateDID = async (
   }
   console.log(`Inscription ${jobId} broadcast waiting to be mined...`);
   await waitForInscription(jobId, options);
-  console.log(`${did} successfully deactivated!, ${Bun.env.ORD_API}/sat/${did.split('did:btco:')[1]}`);
+  console.log(`${did} successfully deactivated!, ${Bun.env.ORD_API}/sat/${did.split(getPrefix(options))[1]}`);
 }
 
 export const resolveDID = async (did: string, options = {network: 'mainnet'}) => {
   const {didDocument, didDocumentMetadata, didResolutionMetadata} = await resolve(did, options);
   console.log(`${didDocumentMetadata.writes} DID writes`);
   if (didDocument) {
-    console.log(`${did} successfully resolved!, ${Bun.env.ORD_API}/sat/${did.split('did:btco:')[1]}`);
+    console.log(`${did} successfully resolved!, ${Bun.env.ORD_API}/sat/${did.split(getPrefix(options))[1]}`);
     console.log(JSON.stringify(didDocument, null, 2));
   } else {
     console.error(`Failed to resolve ${did}`);

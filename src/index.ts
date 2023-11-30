@@ -6,6 +6,7 @@ import path from "path";
 import chalk from "chalk";
 import figlet from "figlet";
 import { createDID, deactivateDID, listBlankSats, listDIDs, resolveDID, updateDID } from "./commands";
+import { getCommandNetwork } from "./utils";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,12 +25,14 @@ program
   .alias('ls')
   .description('List DIDs in wallet')
   .option('-r, --regtest', 'Use regtest network')
+  .option('-s, --signet', 'Use signet network')
+  .option('-t, --testnet', 'Use testnet network')
   .option('-b, --blank', 'List available DIDs in wallet')
   .action(async (options) => {
     if (options.blank) {
-      listBlankSats({network: options.regtest ? 'regtest' : 'mainnet'});
+      listBlankSats({network: getCommandNetwork(options)});
     } else {
-      listDIDs({network: options.regtest ? 'regtest' : 'mainnet'});
+      listDIDs({network: getCommandNetwork(options)});
     }
   })
 
@@ -37,6 +40,8 @@ program
   .command('create <did> <document>')
   .description('Create a new DID')
   .option('-r, --regtest', 'Use regtest network')
+  .option('-s, --signet', 'Use signet network')
+  .option('-t, --testnet', 'Use testnet network')
   .option('--fee-rate <feeRate>', 'Inscription fee rate')
   .action(async (did, document, options) => {
     if (!options.feeRate) {
@@ -51,7 +56,7 @@ program
       did,
       document,
       {
-        network: options.regtest ? 'regtest' : 'mainnet',
+        network: getCommandNetwork(options),
         feeRate: options.feeRate
       })
   });
@@ -60,6 +65,8 @@ program
   .command('update <did> <document>')
   .description('Update an existing DID')
   .option('-r, --regtest', 'Use regtest network')
+  .option('-s, --signet', 'Use signet network')
+  .option('-t, --testnet', 'Use testnet network')
   .option('--fee-rate <feeRate>', 'Inscription fee rate')
   .action(async (did, document, options) => {
     if (!options.feeRate) {
@@ -74,7 +81,7 @@ program
       did,
       document,
       {
-        network: options.regtest ? 'regtest' : 'mainnet',
+        network: getCommandNetwork(options),
         feeRate: options.feeRate
       })
   });
@@ -83,6 +90,8 @@ program
   .command('deactivate <did>')
   .description('Deactivate a DID')
   .option('-r, --regtest', 'Use regtest network')
+  .option('-s, --signet', 'Use signet network')
+  .option('-t, --testnet', 'Use testnet network')
   .option('--fee-rate <feeRate>', 'Inscription fee rate')
   .action(async (did, options) => {
     if (!options.feeRate) {
@@ -95,7 +104,7 @@ program
     const result = await deactivateDID(
       did,
       {
-        network: options.regtest ? 'regtest' : 'mainnet',
+        network: getCommandNetwork(options),
         feeRate: options.feeRate
       })
   });
@@ -103,12 +112,15 @@ program
 program
   .command('resolve <did>')
   .description('Resolve a DID')
-  .option('-r, --regtest', 'Use regtest network')
+  
+
+  .option('-s, --signet', 'Use signet network')
+  .option('-t, --testnet', 'Use testnet network').option('-r, --regtest', 'Use regtest network')
   .action(async (did, options) => {
     console.log(`Resolving DID: ${did}`);
     console.log('Options:', options);
     console.log("-".repeat(53))
-    const res = await resolveDID(did, {network: options.regtest ? 'regtest' : 'mainnet'})
+    const res = await resolveDID(did, {network: getCommandNetwork(options)})
   });
   
   const main = async (): Promise<void> => {

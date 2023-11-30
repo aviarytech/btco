@@ -1,5 +1,6 @@
 import { fetchSatDetails } from "./api";
-import { lintDidDocument } from "./utils";
+import { getCommandNetwork, getPrefix, lintDidDocument } from "./utils";
+import { getWalletNetwork } from "./wallet";
 
 export const create = async (
   method = 'btco',
@@ -16,7 +17,7 @@ export const create = async (
   if(method !== 'btco') {
     throw new Error(`DID method ${method} not supported.`);
   }
-  const {satpoint} = await fetchSatDetails(did.split('did:btco:')[1], options);
+  const sat = did.split(getPrefix(options))[1];
   const filename = `/tmp/${did}`;
   await Bun.write(`${filename}.json`, JSON.stringify(didDocument));
   if (options.validateDoc && !await lintDidDocument(`${filename}.json`)) {
@@ -25,6 +26,7 @@ export const create = async (
   await Bun.write(`${filename}.txt`, did);
   const cmd = [
     "ord",
+    getWalletNetwork(options),
     "wallet",
     "inscribe",
     "--fee-rate",
@@ -37,12 +39,9 @@ export const create = async (
     "551sat",
     "--metaprotocol",
     "did:btco",
-    "--satpoint",
-    satpoint
+    "--sat",
+    sat
   ]
-  if (options.network === 'regtest') {
-    cmd.splice(1, 0, '-r')
-  }
   const proc = Bun.spawnSync(cmd);
   try {
     const {commit, inscriptions, reveal, total_fees} = JSON.parse(proc.stdout.toString());
@@ -75,7 +74,7 @@ export const update = async (
   didRegistrationMetadata: {fees: number, inscription: string} | null,
   didDocumentMetadata: any
 }> => {
-  const {satpoint} = await fetchSatDetails(did.split('did:btco:')[1], options);
+  const sat = did.split(getPrefix(options))[1];
 
   const filename = `/tmp/${did}`;
   await Bun.write(`${filename}.json`, JSON.stringify(didDocument));
@@ -85,6 +84,7 @@ export const update = async (
   await Bun.write(`${filename}.txt`, did);
   const cmd = [
     "ord",
+    getWalletNetwork(options),
     "wallet",
     "inscribe",
     "--reinscribe",
@@ -98,12 +98,9 @@ export const update = async (
     "551sat",
     "--metaprotocol",
     "did:btco",
-    "--satpoint",
-    `${satpoint}`
+    "--sat",
+    sat
   ]
-  if (options.network === 'regtest') {
-    cmd.splice(1, 0, '-r')
-  }
   const proc = Bun.spawnSync(cmd);
   try {
     const {commit, inscriptions, reveal, total_fees} = JSON.parse(proc.stdout.toString());
@@ -134,12 +131,13 @@ export const deactivate = async (
   didRegistrationMetadata: {fees: number, inscription: string} | null,
   didDocumentMetadata: any
 }> => {
-  const {satpoint} = await fetchSatDetails(did.split('did:btco:')[1], options);
+  const sat = did.split(getPrefix(options))[1];
 
   const filename = `/tmp/${did}`;
   await Bun.write(`${filename}.txt`, '🔥');
   const cmd = [
     "ord",
+    getWalletNetwork(options),
     "wallet",
     "inscribe",
     "--reinscribe",
@@ -151,12 +149,9 @@ export const deactivate = async (
     "551sat",
     "--metaprotocol",
     "did:btco",
-    "--satpoint",
-    `${satpoint}`
+    "--sat",
+    `${sat}`
   ]
-  if (options.network === 'regtest') {
-    cmd.splice(1, 0, '-r')
-  }
   const proc = Bun.spawnSync(cmd);
   try {
     const {commit, inscriptions, reveal, total_fees} = JSON.parse(proc.stdout.toString());

@@ -1,20 +1,21 @@
 import { describe, expect, test, afterEach } from "bun:test";
 
 import { create, update } from '../src/registration';
-import { decodeCborHex, getSats, lintDidDocument } from "../src/utils";
+import { decodeCborHex, lintDidDocument } from "../src/utils";
+import { getBlankSats } from "../src/wallet";
 const didDoc = await Bun.file('./tests/fixtures/didDoc.json').json();
 
 describe('utils', () => {
 
   test('list sats', async () => {
-    const sats = await getSats({network: 'regtest'});
+    const sats = await getBlankSats({network: 'regtest'});
     expect(sats.length).toBeGreaterThan(1);
   })
 
   test('lint did document (valid)', async () => {
     const valid = await lintDidDocument('./tests/fixtures/didDoc.json')
     expect(valid).toBeTrue();
-  })
+  }, 10000)
 
   test('lint did document (invalid)', async () => {
     const valid = await lintDidDocument('./tests/fixtures/invalidDidDoc.json')

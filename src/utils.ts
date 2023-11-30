@@ -2,61 +2,26 @@ import { fetchInscription, fetchSatDetails, fetchSatNumber } from "./api";
 import {decode} from 'cbor2';
 import { resolve } from "./resolution";
 
-export const getDIDs = async (options = {network: 'mainnet'}) => {
-  const inscriptionCMD = Bun.spawn([
-    "ord",
-    options.network === 'regtest' ? "-r" : "",
-    "wallet",
-    "inscriptions"
-  ]);
-  const inscriptionsJson = await new Response(inscriptionCMD.stdout).json();
-  const inscriptions = inscriptionsJson.map((o: any) => o.inscription);
-  const dids = [];
-  for (const inscription of inscriptions) {
-    const sat = await fetchInscription(inscription, options);
-    if (sat) {
-      try {
-        const did = await resolve(`did:btco:${sat.sat}`, options)
-        if (did) {
-          dids.push(did);
-        }
-      } catch(e) {
-        // Do nothing
-      }
-    }
+export const getCommandNetwork = (options: any) => {
+  if (options.regtest) {
+    return 'regtest';
+  } else if (options.signet) {
+    return 'signet';
+  } else if (options.testnet) {
+    return 'testnet';
   }
-  return dids;
+  return 'mainnet';
 }
 
-export const getSats = async (options = {network: 'mainnet'}) => {
-  const inscriptionCMD = Bun.spawn([
-    "ord",
-    options.network === 'regtest' ? "-r" : "",
-    "wallet",
-    "inscriptions"
-  ]);
-  const inscriptionsJson = await new Response(inscriptionCMD.stdout).json();
-  const inscriptions = inscriptionsJson.map((o: any) => o.location);
-  const outputsCMD = Bun.spawn([
-    "ord",
-    options.network === 'regtest' ? "-r" : "",
-    "wallet",
-    "outputs"
-  ]);
-  const outputsJson = await new Response(outputsCMD.stdout).json();
-  let outputs = outputsJson.map((o: any) => o.output).filter(
-    (o: string) => !inscriptions.some((i: string) => o.startsWith(i.split(':')[0]))
-  );
-  const nums = [];
-  for (const output of outputs) {
-    nums.push(await fetchSatNumber(output, options));
+export const getPrefix = (options = {network: 'mainnet'}) => {
+  if (options.network === 'regtest') {
+    return 'did:btco:reg:';
+  } else if (options.network === 'signet') {
+    return 'did:btco:sig:';
+  } else if (options.network === 'testnet') {
+    return 'did:btco:test:';
   }
-  const sats = [];
-  for (const num of nums) {
-    sats.push(await fetchSatDetails(num, options));
-  }
-  
-  return sats.filter(s => s.satpoint);
+  return 'did:btco:';
 }
 
 export const waitForInscription = async (inscriptionId: string, options = {network: 'mainnet'}) => {
