@@ -1,27 +1,31 @@
 import { fetchContent, fetchMetadata, fetchSatAtInscriptionIndexDetails, fetchSatDetails } from "./api"
-import { getPrefix } from "./utils"
+import { getNetworkFromDID, getPrefix } from "./utils"
 
 export const resolve = async (
-  did: string,
-  options = {'network' : 'mainnet'}
+  did: string
 ): Promise<{
+  '@context': any,
   didDocument: any,
   didResolutionMetadata: {
     did: string,
     deactivated?: boolean,
     error?: string,
-    inscriptionId: string
+    inscriptionId?: string
   },
   didDocumentMetadata: {
     writes: number
   }
 }> => {
-  const sat = did.split(getPrefix(options))[1];
+  const network = getNetworkFromDID(did);
+  const options = {network};
+  const prefix = getPrefix(options);
+  const sat = did.split(prefix)[1];
   const details = await fetchSatDetails(sat, options);
   const {id} = await fetchSatAtInscriptionIndexDetails(sat, -1, options);
   const content = await fetchContent(id, options)
   if (content === '🔥') {
     return {
+      "@context": "https://w3id.org/did-resolution/v1",
       didDocument: null,
       didResolutionMetadata: {
         did,
@@ -42,16 +46,28 @@ export const resolve = async (
   } else if (didDocument.id !== did) {
     error = `DID Document id ${didDocument.id} does not match ${did}`;
   } else if (
-    did.split(getPrefix(options))[1] !== details.num.toString() &&
-    did.split(getPrefix(options))[1] !== details.name &&
-    did.split(getPrefix(options))[1] !== details.decimal
+    did.split(prefix)[1] !== details.num.toString() &&
+    did.split(prefix)[1] !== details.name &&
+    did.split(prefix)[1] !== details.decimal
   ) {
     error = `DID ${did} has been written on sat (${details.num}, ${details.name}, ${details.decimal})`
   }
   if (error) {
-    throw new Error(error);
+    console.error(error)
+    return {
+      "@context": "https://w3id.org/did-resolution/v1",
+      didDocument: null,
+      didResolutionMetadata: {
+        error,
+        did
+      },
+      didDocumentMetadata: {
+        writes: 0
+      }
+    }
   }
   return {
+    "@context": "https://w3id.org/did-resolution/v1",
     didDocument,
     didResolutionMetadata: {
       inscriptionId: id,

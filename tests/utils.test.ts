@@ -1,6 +1,5 @@
-import { describe, expect, test, afterEach } from "bun:test";
+import { describe, expect, test } from "bun:test";
 
-import { create, update } from '../src/registration';
 import { decodeCborHex, lintDidDocument } from "../src/utils";
 import { getBlankSats } from "../src/wallet";
 const didDoc = await Bun.file('./tests/fixtures/didDoc.json').json();

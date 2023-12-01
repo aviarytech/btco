@@ -1,6 +1,31 @@
-import { fetchInscription, fetchSatDetails, fetchSatNumber } from "./api";
+import { fetchInscription } from "./api";
 import {decode} from 'cbor2';
-import { resolve } from "./resolution";
+
+export const getAPI = (network: string) => {
+  if (network === 'mainnet' && Bun.env.ORD_API) {
+    return Bun.env.ORD_API;
+  } else if (network === 'regtest' && Bun.env.ORD_REGTEST_API) {
+    return Bun.env.ORD_REGTEST_API;
+  } else if (network === 'signet' && Bun.env.ORD_SIGNET_API) {
+    return Bun.env.ORD_SIGNET_API;
+  } else if (network === 'testnet' && Bun.env.ORD_TESTNET_API) {
+    return Bun.env.ORD_TESTNET_API;
+  }
+  console.log('test!')
+  throw new Error(`API environment variable not found for ${network}`)
+}
+
+export const getNetworkFromDID = (did: string) => {
+  if (did.startsWith("did:btco:sig:")) {
+    return 'signet';
+  } else if (did.startsWith("did:btco:reg:")) {
+    return 'regtest';
+  } else if (did.startsWith("did:btco:test:")) {
+    return 'testnet';
+  } else {
+    return 'mainnet';
+  }
+}
 
 export const getCommandNetwork = (options: any) => {
   if (options.regtest) {

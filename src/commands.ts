@@ -1,6 +1,6 @@
 import { create, deactivate, update } from "./registration";
 import { resolve } from "./resolution";
-import { waitForInscription, getPrefix } from "./utils"
+import { waitForInscription, getPrefix, getAPI } from "./utils"
 import { getBlankSats, getDIDs } from './wallet';
 
 export const listBlankSats = async (options = {network: 'mainnet'}) => {
@@ -50,7 +50,7 @@ export const createDID = async (
   }
   console.log(`Inscription ${jobId} broadcast waiting to be mined...`);
   await waitForInscription(jobId, options);
-  console.log(`${did} successfully created!, ${Bun.env.ORD_API}/sat/${did.split(getPrefix(options))[1]}`);
+  console.log(`${did} successfully created!, ${getAPI(options.network)}/sat/${did.split(getPrefix(options))[1]}`);
 }
 
 export const updateDID = async (
@@ -72,7 +72,7 @@ export const updateDID = async (
   }
   console.log(`Inscription ${jobId} broadcast waiting to be mined...`);
   await waitForInscription(jobId, );
-  console.log(`${did} successfully updated!, ${Bun.env.ORD_API}/sat/${did.split(getPrefix(options))[1]}`);
+  console.log(`${did} successfully updated!, ${getAPI(options.network)}/sat/${did.split(getPrefix(options))[1]}`);
 }
 
 export const deactivateDID = async (
@@ -89,14 +89,14 @@ export const deactivateDID = async (
   }
   console.log(`Inscription ${jobId} broadcast waiting to be mined...`);
   await waitForInscription(jobId, options);
-  console.log(`${did} successfully deactivated!, ${Bun.env.ORD_API}/sat/${did.split(getPrefix(options))[1]}`);
+  console.log(`${did} successfully deactivated!, ${getAPI(options.network)}/sat/${did.split(getPrefix(options))[1]}`);
 }
 
 export const resolveDID = async (did: string, options = {network: 'mainnet'}) => {
-  const {didDocument, didDocumentMetadata, didResolutionMetadata} = await resolve(did, options);
+  const {didDocument, didDocumentMetadata, didResolutionMetadata} = await resolve(did);
   console.log(`${didDocumentMetadata.writes} DID writes`);
   if (didDocument) {
-    console.log(`${did} successfully resolved!, ${Bun.env.ORD_API}/sat/${did.split(getPrefix(options))[1]}`);
+    console.log(`${did} successfully resolved!, ${getAPI(options.network)}/sat/${did.split(getPrefix(options))[1]}`);
     console.log(JSON.stringify(didDocument, null, 2));
   } else {
     console.error(`Failed to resolve ${did}`);

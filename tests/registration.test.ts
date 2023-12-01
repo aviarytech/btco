@@ -56,7 +56,7 @@ describe('registration', () => {
   }, 10000);
 
   test("2. Resolve after create", async () => {
-    const resolved = await resolve(didDoc.id, {network: 'regtest'});
+    const resolved = await resolve(didDoc.id);
     expect(resolved.didDocument.id).toEqual(didDoc.id);
     expect(resolved.didDocumentMetadata.writes).toEqual(1);
     expect(resolved.didResolutionMetadata.inscriptionId).toEqual(latestJobId);
@@ -84,7 +84,7 @@ describe('registration', () => {
   }, 10000);
 
   test("4. Resolve after update", async () => {
-    const resolved = await resolve(didDoc.id, {network: 'regtest'});
+    const resolved = await resolve(didDoc.id);
     expect(resolved.didDocument.id).toEqual(didDoc.id);
     expect(resolved.didDocumentMetadata.writes).toEqual(2);
     expect(resolved.didResolutionMetadata.inscriptionId).toEqual(latestJobId);
@@ -108,7 +108,7 @@ describe('registration', () => {
   });
 
   test("6. Resolve after deactivate", async () => {
-    const resolved = await resolve(didDoc.id, {network: 'regtest'});
+    const resolved = await resolve(didDoc.id);
     expect(resolved.didDocument).toBeNull();
     expect(resolved.didDocumentMetadata.writes).toEqual(3);
     expect(resolved.didResolutionMetadata.inscriptionId).toEqual(latestJobId);

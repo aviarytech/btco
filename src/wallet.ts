@@ -27,7 +27,7 @@ export const getDIDs = async (options = {network: 'mainnet'}) => {
     const sat = await fetchInscription(inscription, options);
     if (sat) {
       try {
-        const did = await resolve(`${getPrefix(options)}${sat.sat}`, options)
+        const did = await resolve(`${getPrefix(options)}${sat.sat}`)
         if (did) {
           dids.push(did);
         }
@@ -55,6 +55,5 @@ export const getBlankSats = async (options = {network: 'mainnet'}) => {
   outputs = outputs.filter(
     (o: {details: {inscriptions: string[]}}) => o.details.inscriptions.length === 0
   );
-  console.log(outputs)
   return outputs;
 }

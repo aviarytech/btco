@@ -1,43 +1,50 @@
-import { decodeCborHex } from "./utils";
+import { decodeCborHex, getAPI } from "./utils";
 
-const getAPI = (network: string) => {
-  if (network === 'mainnet') {
-    return Bun.env.ORD_API;
-  } else if (network === 'regtest') {
-    return Bun.env.ORD_REGTEST_API;
-  } else if (network === 'signet') {
-    return Bun.env.ORD_SIGNET_API;
-  } else if (network === 'testnet') {
-    return Bun.env.ORD_TESTNET_API;
+export async function fetchSatNumber(output: string, options = {network: 'mainnet'}): Promise<number | null> {
+  try {
+    const response = await fetch(`${getAPI(options.network)}/output/${output}`, {headers: {Accept: 'application/json'}});
+    const data = await response.json();
+    return data.sat_ranges[0][0];
+  } catch (e: any) {
+    console.error(e.message);
+    return null;
   }
 }
 
-export async function fetchSatNumber(output: string, options = {network: 'mainnet'}): Promise<number> {
-  const response = await fetch(`${getAPI(options.network)}/output/${output}`, {headers: {Accept: 'application/json'}});
-  const data = await response.json();
-  return data.sat_ranges[0][0];
-}
-
 export async function fetchSatDetails(sat: number | string, options = {network: 'mainnet'}) {
-  const response = await fetch(`${getAPI(options.network)}/sat/${sat}`, {headers: {Accept: 'application/json'}});
-  const {number, name, decimal, inscriptions, satpoint} = await response.json();
-  return {num: number, name, decimal, inscriptions, satpoint};
+  try {
+    const response = await fetch(`${getAPI(options.network)}/sat/${sat}`, {headers: {Accept: 'application/json'}});
+    const {number, name, decimal, inscriptions, satpoint} = await response.json();
+    return {num: number, name, decimal, inscriptions, satpoint};
+  } catch (e: any) {
+    console.error(e.message)
+    return {};
+  }
 }
 
 
 export async function fetchOutputDetails(output: string, options = {network: 'mainnet'}) {
-  const response = await fetch(`${getAPI(options.network)}/output/${output}`, {headers: {Accept: 'application/json'}});
-  const {
-    value, script_pubkey, address, transaction, inscriptions, sat_ranges, runes
-  } = await response.json();
-  const sat = await fetchSatDetails(sat_ranges[0][0], options);
-  return {value, address, transaction, inscriptions, sat_ranges, sat};
+  try {
+    const response = await fetch(`${getAPI(options.network)}/output/${output}`, {headers: {Accept: 'application/json'}});
+    const {
+      value, script_pubkey, address, transaction, inscriptions, sat_ranges, runes
+    } = await response.json();
+    const sat = await fetchSatDetails(sat_ranges[0][0], options);
+    return {value, address, transaction, inscriptions, sat_ranges, sat};
+  } catch (e: any) {
+    console.error(e.message);
+  }
 }
 
 export async function fetchSatAtInscriptionIndexDetails(sat: number | string, index: number, options = {network: 'mainnet'}) {
-  const response = await fetch(`${getAPI(options.network)}/r/sat/${sat}/at/${index}`, {headers: {Accept: 'application/json'}});
-  const {id} = await response.json();
-  return {id};
+  try {
+    const response = await fetch(`${getAPI(options.network)}/r/sat/${sat}/at/${index}`, {headers: {Accept: 'application/json'}});
+    const {id} = await response.json();
+    return {id};
+  } catch (e: any) {
+    console.error(e.message);
+    return {id: null};
+  }
 }
 
 export async function fetchInscription(id: string, options = {network: 'mainnet'}) {
@@ -59,11 +66,11 @@ export async function fetchInscription(id: string, options = {network: 'mainnet'
 }
 
 export async function fetchMetadata(id: string, options = {network: 'mainnet'}) {
-  const response = await fetch(`${getAPI(options.network)}/r/metadata/${id}`, {headers: {Accept: 'application/json'}});
   try {
+    const response = await fetch(`${getAPI(options.network)}/r/metadata/${id}`, {headers: {Accept: 'application/json'}});
     const data = await response.json();
     return decodeCborHex(data);
-  } catch(e) {
+  } catch(e: any) {
     return null;
   }
 }
