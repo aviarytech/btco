@@ -1,19 +1,23 @@
 import { fetchInscription } from "./api";
 import {decode} from 'cbor2';
 
-export const getAPI = (network: string) => {
-  if (network === 'mainnet' && Bun.env.ORD_API) {
-    return Bun.env.ORD_API;
-  } else if (network === 'regtest' && Bun.env.ORD_REGTEST_API) {
-    return Bun.env.ORD_REGTEST_API;
-  } else if (network === 'signet' && Bun.env.ORD_SIGNET_API) {
-    return Bun.env.ORD_SIGNET_API;
-  } else if (network === 'testnet' && Bun.env.ORD_TESTNET_API) {
-    return Bun.env.ORD_TESTNET_API;
+export type NetworkType = 'mainnet' | 'regtest' | 'signet' | 'testnet';
+
+export const getApi = (network: NetworkType) => {
+  const apiMap: { [key in NetworkType]: string } = {
+    mainnet: 'ORD_API',
+    regtest: 'ORD_REGTEST_API',
+    signet: 'ORD_SIGNET_API',
+    testnet: 'ORD_TESTNET_API'
+  };
+
+  const envVar = apiMap[network];
+  if (!envVar || !Bun.env[envVar]) {
+    throw new Error(`API URL not found for network: ${network}`);
   }
-  console.log('test!')
-  throw new Error(`API environment variable not found for ${network}`)
-}
+
+  return Bun.env[envVar];
+};
 
 export const getNetworkFromDID = (did: string) => {
   if (did.startsWith("did:btco:sig:")) {
