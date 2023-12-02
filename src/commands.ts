@@ -94,6 +94,7 @@ export const deactivateDID = async (
 
 export const resolveDID = async (did: string, options = {network: 'mainnet'}) => {
   const {didDocument, didDocumentMetadata, didResolutionMetadata} = await resolve(did);
+  console.log(await resolve(did))
   console.log(`${didDocumentMetadata.writes} DID writes`);
   if (didDocument) {
     console.log(`${did} successfully resolved!, ${getAPI(options.network)}/sat/${did.split(getPrefix(options))[1]}`);

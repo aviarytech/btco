@@ -112,8 +112,6 @@ program
 program
   .command('resolve <did>')
   .description('Resolve a DID')
-  
-
   .option('-s, --signet', 'Use signet network')
   .option('-t, --testnet', 'Use testnet network').option('-r, --regtest', 'Use regtest network')
   .action(async (did, options) => {

@@ -45,6 +45,7 @@ export const create = async (
   const proc = Bun.spawnSync(cmd);
   try {
     const {commit, inscriptions, reveal, total_fees} = JSON.parse(proc.stdout.toString());
+    console.log(JSON.stringify(inscriptions[0]))
     console.log(`Successfully submitted tx: ${inscriptions[0].reveal}`)
     return {
       jobId: inscriptions[0].id,
