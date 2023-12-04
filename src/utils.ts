@@ -53,9 +53,20 @@ export const getPrefix = (options = {network: 'mainnet'}) => {
   return 'did:btco:';
 }
 
-export const waitForInscription = async (inscriptionId: string, options = {network: 'mainnet'}) => {
+export const waitForInscription = async (
+  inscriptionId: string,
+  options: {network: NetworkType, logEverySeconds?: number} = {network: 'mainnet', logEverySeconds: 1}
+  ) => {
   let inscription;
+  let last = Bun.nanoseconds();
+  let blocks = 1;
   do {
+    if (Bun.nanoseconds() - last >= options.logEverySeconds! * 1000000000) { 
+      process.stdout.write(`\r${"⌾ ".repeat(blocks)}`);
+      last = Bun.nanoseconds();
+      blocks = blocks + 1;
+    }
+    
     inscription = await fetchInscription(inscriptionId, options);
     await new Promise(resolve => setTimeout(resolve, 1000));
   } while (!inscription);

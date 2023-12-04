@@ -42,6 +42,7 @@ program
   .option('-r, --regtest', 'Use regtest network')
   .option('-s, --signet', 'Use signet network')
   .option('-t, --testnet', 'Use testnet network')
+  .option('-l, --lint', 'Lint DID Document')
   .option('--fee-rate <feeRate>', 'Inscription fee rate')
   .action(async (did, document, options) => {
     if (!options.feeRate) {
@@ -57,7 +58,8 @@ program
       document,
       {
         network: getCommandNetwork(options),
-        feeRate: options.feeRate
+        feeRate: options.feeRate,
+        validateDoc: options.lint ?? false
       })
   });
 
@@ -67,6 +69,7 @@ program
   .option('-r, --regtest', 'Use regtest network')
   .option('-s, --signet', 'Use signet network')
   .option('-t, --testnet', 'Use testnet network')
+  .option('-l, --lint', 'Lint DID Document')
   .option('--fee-rate <feeRate>', 'Inscription fee rate')
   .action(async (did, document, options) => {
     if (!options.feeRate) {
@@ -82,7 +85,8 @@ program
       document,
       {
         network: getCommandNetwork(options),
-        feeRate: options.feeRate
+        feeRate: options.feeRate,
+        validateDoc: options.lint ?? false
       })
   });
 

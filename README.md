@@ -1,15 +1,23 @@
-# BTC Ordinals DIDs
-
 ![Bitcoin Ordinals DID Method Logo](./btco.jpg)
 
+---
 
-This is an implementation of the did:btco method.
+An ALPHA implementation of the `did:btco` [DID](https://www.w3.org/TR/did-core/) method.. **Not Financial Advice**.
 
-It follows the [DID Registration](https://identity.foundation/did-registration) specification, uses DID
+### W3C Recommendations
 
-It uses the following options:
+- [DID v1.0](https://www.w3.org/TR/did-core/)
 
-* Client-managed secret mode
+### DIF Work Items
+
+- [Universal Resolver](https://dev.uniresolver.io/)
+- [DID Registration](https://identity.foundation/did-registration)
+- [DID Lint](https://didlint.ownyourdata.eu/validate)
+
+### W3C-CCG Work Items
+
+- [DID Resolution](https://w3c-ccg.github.io/did-resolution/)
+
 
 ## Prerequisites
 
@@ -44,36 +52,21 @@ local `regtest (-r)` or a broader network like `signet (-s)` before commit to sp
 
 ## List DIDS
 
-View DIDS in wallet
-
 `bun run btco list`
 
-View blank and unwritten DIDs
+Or to view blank and unwritten DIDs
 
 `bun run btco list --blank`
 
 ### Create BTCO DID
 
-`bun run btco create`
+`bun run btco create <did:btco:51...> ./didDoc.json --fee-rate <feeRate>`
 
-## Core Methods
+### Update BTCO DID
 
-The core methods are implemented as follows
+`bun run btco update <did:btco:51...> ./didDoc.json --fee-rate <feeRate>`
 
-```
-create(method = 'btco', did = null, options, secret, didDocument) -> jobId, didState, didRegistrationMetadata, didDocumentMetadata
+### Deactivate BTCO DID
 
-update(did, options, secret, didDocumentOperation, didDocument) -> jobId, didState, didRegistrationMetadata, didDocumentMetadata
+`bun run btco deactivate <did:btco:51...> --fee-rate <feeRate>`
 
-deactivate(did, options, secret) -> jobId, didState, didRegistrationMetadata, didDocumentMetadata
-
-resolve(did, options) -> didDocument, didResolutionMetadata, didDocumentMetadata
-```
-
-## Utility Methods
-
-A number of utility methods are used to enable the core methods.
-
-```
-listAvailable() -> dids[]
-```

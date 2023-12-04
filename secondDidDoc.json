@@ -1,0 +1,26 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/did/v1",
+    "https://w3id.org/security/multikey/v1"
+  ],
+  "id": "did:btco:reg:2185000000000",
+  "verificationMethod": [
+    {
+      "id": "did:btco:reg:2185000000000#z6MktTmB",
+      "controller": "did:btco:reg:2185000000000",
+      "type": "Multikey",
+      "publicKeyMultibase": "z6MktTmBQWV6FmHZyfvSV7ubQ1UCPgLF6VQkRgeGBx7NRzCP"
+    }
+  ],
+  "authentication": [
+    "did:btco:reg:2185000000000#z6MktTmB"
+  ],
+  "assertionMethod": [
+    "did:btco:reg:2185000000000#z6MktTmB"
+  ],
+  "service": {
+    "id": "did:btco:reg:2185000000000#pfp",
+    "type": "LinkedVerifiablePresentations",
+    "serviceEndpoint": "did:btco:reg:90.0"
+  }
+}

@@ -12,6 +12,8 @@ describe('registration', () => {
   let fees = 0;
   let feeRate = 51;
   let validateDoc = false;
+  let fakeMineSeconds = 10;
+  let logEverySeconds = 6;
 
   beforeAll(async () => {
     const sats = await getBlankSats({network: 'regtest'});
@@ -21,13 +23,6 @@ describe('registration', () => {
     didDoc = JSON.parse(didDoc);
     console.log(`Running test suite for ${didDoc.id}`)
   });
-
-  afterEach(async () => {
-    console.log(`mining inscription...`)
-    Bun.spawnSync(["bitcoin-cli", "-regtest", "generatetoaddress", "1", "bcrt1pxrgctvy8dm5cn69wk3sjscf4zt8z8uvamhdt97pcce9me3lv2fgq9m3p5u"])
-    await waitForInscription(latestJobId, {network: 'regtest'});
-    console.log(`...inscription mined!`)
-  })
 
   afterAll(async () => {
     console.log(`Total fees spent: ${fees} sats`);
@@ -53,7 +48,15 @@ describe('registration', () => {
     expect(reg.didDocumentMetadata.reveal.length).toBe(64);
     latestJobId = reg.jobId as string;
     fees += reg.didRegistrationMetadata?.fees ?? 0;
-  }, 10000);
+
+    console.log(`Mining inscription ${latestJobId.slice(0, 16)}...`)
+    setTimeout(async () =>{
+      Bun.spawnSync(["bitcoin-cli", "-regtest", "generatetoaddress", "1", "bcrt1pxrgctvy8dm5cn69wk3sjscf4zt8z8uvamhdt97pcce9me3lv2fgq9m3p5u"])
+    }, fakeMineSeconds * 1000)
+    await waitForInscription(latestJobId, {network: 'regtest', logEverySeconds});
+    console.log(`...inscription mined!`)
+
+  }, 1000000000000000);
 
   test("2. Resolve after create", async () => {
     const resolved = await resolve(didDoc.id);
@@ -81,7 +84,11 @@ describe('registration', () => {
     expect(reg.didDocumentMetadata.reveal.length).toBe(64);
     latestJobId = reg.jobId as string;
     fees += reg.didRegistrationMetadata?.fees ?? 0;
-  }, 10000);
+
+    console.log(`Mining inscription ${latestJobId.slice(0, 16)}...`)
+    await waitForInscription(latestJobId, {network: 'regtest', logEverySeconds});
+    console.log(`...inscription mined!`)
+  }, 1000000000000000);
 
   test("4. Resolve after update", async () => {
     const resolved = await resolve(didDoc.id);
@@ -105,7 +112,14 @@ describe('registration', () => {
     expect(reg.didRegistrationMetadata?.inscription.slice(64)).toBe('i0');
     latestJobId = reg.jobId as string;
     fees += reg.didRegistrationMetadata?.fees ?? 0;
-  });
+
+    console.log(`Mining inscription ${latestJobId.slice(0, 16)}...`)
+    setTimeout(async () =>{
+      Bun.spawnSync(["bitcoin-cli", "-regtest", "generatetoaddress", "1", "bcrt1pxrgctvy8dm5cn69wk3sjscf4zt8z8uvamhdt97pcce9me3lv2fgq9m3p5u"])
+    }, fakeMineSeconds * 1000)
+    await waitForInscription(latestJobId, {network: 'regtest', logEverySeconds});
+    console.log(`...inscription mined!`)
+  }, 1000000000000000);
 
   test("6. Resolve after deactivate", async () => {
     const resolved = await resolve(didDoc.id);

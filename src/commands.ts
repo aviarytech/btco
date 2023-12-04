@@ -1,6 +1,6 @@
 import { create, deactivate, update } from "./registration";
 import { resolve } from "./resolution";
-import { waitForInscription, getPrefix, getAPI } from "./utils"
+import { waitForInscription, getPrefix, getApi, NetworkType } from "./utils"
 import { getBlankSats, getDIDs } from './wallet';
 
 export const listBlankSats = async (options = {network: 'mainnet'}) => {
@@ -34,9 +34,10 @@ export const listDIDs = async (options = {network: 'mainnet'}) => {
 export const createDID = async (
   did: string,
   didDocumentFilename: any,
-  options = {
+  options: {network: NetworkType, feeRate: number, validateDoc: boolean} = {
     network: 'mainnet',
-    feeRate: 1
+    feeRate: 1,
+    validateDoc: true
   }
 ) => {
   const file = Bun.file(didDocumentFilename);
@@ -44,21 +45,22 @@ export const createDID = async (
   let didDoc = await file.json();
   didDocTxt = didDocTxt.replaceAll(didDoc.id, did);
   const {jobId, didState, didRegistrationMetadata, didDocumentMetadata} =
-    await create('btco', did, {...options, validateDoc: true}, null, JSON.parse(didDocTxt));
+    await create('btco', did, options, null, JSON.parse(didDocTxt));
   if (didState.state !== 'wait' || !jobId) {
     throw new Error(`Failed to create DID ${did}`);
   }
-  console.log(`Inscription ${jobId} broadcast waiting to be mined...`);
-  await waitForInscription(jobId, options);
-  console.log(`${did} successfully created!, ${getAPI(options.network)}/sat/${did.split(getPrefix(options))[1]}`);
+  console.log(`Inscription ${getApi(options.network as NetworkType)}/${jobId} broadcast waiting to be mined...`);
+  await waitForInscription(jobId, {...options, logEverySeconds: 8});
+  console.log(`${did} successfully created!, ${getApi(options.network as NetworkType)}/sat/${did.split(getPrefix(options))[1]}`);
 }
 
 export const updateDID = async (
   did: string,
   didDocumentFilename: any,
-  options = {
+  options: {network: NetworkType, feeRate: number, validateDoc: boolean} = {
     network: 'mainnet',
-    feeRate: 1
+    feeRate: 1,
+    validateDoc: true
   }
 ) => {
   const file = Bun.file(didDocumentFilename);
@@ -66,18 +68,18 @@ export const updateDID = async (
   let didDoc = await file.json();
   didDocTxt = didDocTxt.replaceAll(didDoc.id, did);
   const {jobId, didState, didRegistrationMetadata, didDocumentMetadata} =
-    await update(did, {...options, validateDoc: true}, null, ['setDidDocument'], JSON.parse(didDocTxt));
+    await update(did, options, null, ['setDidDocument'], JSON.parse(didDocTxt));
   if (didState.state !== 'wait' || !jobId) {
     throw new Error(`Failed to update DID ${did}`);
   }
-  console.log(`Inscription ${jobId} broadcast waiting to be mined...`);
-  await waitForInscription(jobId, );
-  console.log(`${did} successfully updated!, ${getAPI(options.network)}/sat/${did.split(getPrefix(options))[1]}`);
+  console.log(`Inscription${getApi(options.network as NetworkType)}/${jobId} broadcast waiting to be mined...`);
+  await waitForInscription(jobId,  {...options, logEverySeconds: 8});
+  console.log(`${did} successfully updated!, ${getApi(options.network as NetworkType)}/sat/${did.split(getPrefix(options))[1]}`);
 }
 
 export const deactivateDID = async (
   did: string,
-  options = {
+  options: {network: NetworkType, feeRate: number} = {
     network: 'mainnet',
     feeRate: 1
   }
@@ -87,17 +89,16 @@ export const deactivateDID = async (
   if (didState.state !== 'wait' || !jobId) {
     throw new Error(`Failed to deactivate DID ${did}`);
   }
-  console.log(`Inscription ${jobId} broadcast waiting to be mined...`);
-  await waitForInscription(jobId, options);
-  console.log(`${did} successfully deactivated!, ${getAPI(options.network)}/sat/${did.split(getPrefix(options))[1]}`);
+  console.log(`Inscription ${getApi(options.network as NetworkType)}/${jobId} broadcast waiting to be mined...`);
+  await waitForInscription(jobId,  {...options, logEverySeconds: 8});
+  console.log(`${did} successfully deactivated!, ${getApi(options.network as NetworkType)}/sat/${did.split(getPrefix(options))[1]}`);
 }
 
 export const resolveDID = async (did: string, options = {network: 'mainnet'}) => {
   const {didDocument, didDocumentMetadata, didResolutionMetadata} = await resolve(did);
-  console.log(await resolve(did))
   console.log(`${didDocumentMetadata.writes} DID writes`);
   if (didDocument) {
-    console.log(`${did} successfully resolved!, ${getAPI(options.network)}/sat/${did.split(getPrefix(options))[1]}`);
+    console.log(`${did} successfully resolved!, ${getApi(options.network as NetworkType)}/sat/${did.split(getPrefix(options))[1]}`);
     console.log(JSON.stringify(didDocument, null, 2));
   } else {
     console.error(`Failed to resolve ${did}`);

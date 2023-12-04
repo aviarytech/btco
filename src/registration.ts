@@ -1,5 +1,5 @@
 import { fetchSatDetails } from "./api";
-import { getCommandNetwork, getPrefix, lintDidDocument } from "./utils";
+import { NetworkType, getApi, getCommandNetwork, getPrefix, lintDidDocument } from "./utils";
 import { getWalletNetwork } from "./wallet";
 
 export const create = async (
@@ -45,8 +45,6 @@ export const create = async (
   const proc = Bun.spawnSync(cmd);
   try {
     const {commit, inscriptions, reveal, total_fees} = JSON.parse(proc.stdout.toString());
-    console.log(JSON.stringify(inscriptions[0]))
-    console.log(`Successfully submitted tx: ${inscriptions[0].reveal}`)
     return {
       jobId: inscriptions[0].id,
       didState: {state: 'wait', did},
@@ -54,7 +52,6 @@ export const create = async (
       didDocumentMetadata: {commit, reveal}
     };
   } catch(e) {
-    console.log('test')
     console.error(proc.stderr.toString());
     return {
       jobId: null,
