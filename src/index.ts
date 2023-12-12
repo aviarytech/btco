@@ -17,7 +17,7 @@ const version = packageJson.version;
 const program = new Command();
 
 program
-  .name("BTC Ordinal DIDs")
+  .name("BTCO")
   .version(version)
 
 program

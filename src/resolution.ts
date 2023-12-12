@@ -20,6 +20,20 @@ export const resolve = async (
   const options = {network};
   const prefix = getPrefix(options);
   const sat = did.split(prefix)[1];
+  if (sat === null) {
+    console.error(`Error resolving ${did}`);
+    return {
+      "@context": "https://w3id.org/did-resolution/v1",
+      didDocument: null,
+      didResolutionMetadata: {
+        error: `Error resolving ${did}`,
+        did
+      },
+      didDocumentMetadata: {
+        writes: 0
+      }
+    }
+  }
   const details = await fetchSatDetails(sat, options);
   const {id} = await fetchSatAtInscriptionIndexDetails(sat, -1, options);
   const content = await fetchContent(id, options)

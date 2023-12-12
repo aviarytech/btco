@@ -22,9 +22,9 @@ An ALPHA implementation of the `did:btco` [DID](https://www.w3.org/TR/did-core/)
 ## Prerequisites
 
 1. [Bun](https://bun.sh)
-2. [jq](https://jqlang.github.io/jq/)
+2. [jq](https://jqlang.github.io/jq/) (if you want to validate DID documents)
 3. A bitcoin node
-4. An ordinals node with full sat index running as a server
+4. An ordinals node with full sat index running as a server (can be ordinals.com for mainnet)
 5. Another ordinals node with full sat index to be used as a wallet
 6. UTXOs in the ordinals wallet
 

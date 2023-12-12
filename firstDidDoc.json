@@ -17,10 +17,5 @@
   ],
   "assertionMethod": [
     "did:btco:sig:numaikuffwm#z6MktTmB"
-  ],
-  "service": {
-    "id": "did:btco:sig:numaikuffwm#pfp",
-    "type": "LinkedVerifiablePresentations",
-    "serviceEndpoint": "did:btco:sig:51.0"
-  }
+  ]
 }

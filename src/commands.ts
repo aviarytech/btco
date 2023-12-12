@@ -1,6 +1,6 @@
 import { create, deactivate, update } from "./registration";
 import { resolve } from "./resolution";
-import { waitForInscription, getPrefix, getApi, NetworkType } from "./utils"
+import { waitForInscription, getPrefix, getApi, NetworkType, getNetworkFromDID } from "./utils"
 import { getBlankSats, getDIDs } from './wallet';
 
 export const listBlankSats = async (options = {network: 'mainnet'}) => {
@@ -72,7 +72,7 @@ export const updateDID = async (
   if (didState.state !== 'wait' || !jobId) {
     throw new Error(`Failed to update DID ${did}`);
   }
-  console.log(`Inscription${getApi(options.network as NetworkType)}/${jobId} broadcast waiting to be mined...`);
+  console.log(`Inscription ${getApi(options.network as NetworkType)}/${jobId} broadcast waiting to be mined...`);
   await waitForInscription(jobId,  {...options, logEverySeconds: 8});
   console.log(`${did} successfully updated!, ${getApi(options.network as NetworkType)}/sat/${did.split(getPrefix(options))[1]}`);
 }
@@ -89,6 +89,7 @@ export const deactivateDID = async (
   if (didState.state !== 'wait' || !jobId) {
     throw new Error(`Failed to deactivate DID ${did}`);
   }
+  console.log(`TX ${didDocumentMetadata?.reveal}`);
   console.log(`Inscription ${getApi(options.network as NetworkType)}/${jobId} broadcast waiting to be mined...`);
   await waitForInscription(jobId,  {...options, logEverySeconds: 8});
   console.log(`${did} successfully deactivated!, ${getApi(options.network as NetworkType)}/sat/${did.split(getPrefix(options))[1]}`);
@@ -97,7 +98,9 @@ export const deactivateDID = async (
 export const resolveDID = async (did: string, options = {network: 'mainnet'}) => {
   const {didDocument, didDocumentMetadata, didResolutionMetadata} = await resolve(did);
   console.log(`${didDocumentMetadata.writes} DID writes`);
+  options.network = getNetworkFromDID(did);
   if (didDocument) {
+    console.log(did.split(getPrefix(options))[1])
     console.log(`${did} successfully resolved!, ${getApi(options.network as NetworkType)}/sat/${did.split(getPrefix(options))[1]}`);
     console.log(JSON.stringify(didDocument, null, 2));
   } else {
