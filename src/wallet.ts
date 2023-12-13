@@ -10,7 +10,7 @@ export const getWalletNetwork = (options: any) => {
   } else if (options.network === 'testnet') {
     return '-t';
   }
-  return '';
+  return '--chain=mainnet';
 }
 
 export const getDIDs = async (options = {network: 'mainnet'}) => {

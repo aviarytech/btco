@@ -57,7 +57,6 @@ export async function fetchInscription(id: string, options = {network: 'mainnet'
     const url = `${getApi(options.network as NetworkType)}/inscription/${id}`;
     const response = await fetch(url, {headers: {Accept: 'application/json'}});
     if (response.status != 200 || !id) {
-      console.error(`Response status ${response.status} from ${url}`)
       return null;
     }
     const {
