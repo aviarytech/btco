@@ -1,0 +1,21 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/did/v1",
+    "https://w3id.org/security/multikey/v1"
+  ],
+  "id": "did:btco:53585.3880210795",
+  "verificationMethod": [
+    {
+      "id": "did:btco:53585.3880210795#z6Mku6qM",
+      "controller": "did:btco:53585.3880210795",
+      "type": "Multikey",
+      "publicKeyMultibase": "z6Mku6qMZdp2HMFBwdG3g5nxrE1iYWKscQCxShRiio7f8ENk"
+    }
+  ],
+  "authentication": [
+    "did:btco:53585.3880210795#z6Mku6qM"
+  ],
+  "assertionMethod": [
+    "did:btco:53585.3880210795#z6Mku6qM"
+  ]
+}
