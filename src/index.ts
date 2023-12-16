@@ -132,7 +132,7 @@ program
   }
 
   console.log(
-    chalk.green(figlet.textSync("did:btco", { horizontalLayout: "full" }))
+    chalk.green(figlet.textSync("BTCO", { horizontalLayout: "full" }))
   );
   console.log(
     chalk.yellow(figlet.textSync(version, { horizontalLayout: "full" }))
