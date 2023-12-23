@@ -1,4 +1,4 @@
-import { fetchContent, fetchMetadata, fetchSatAtInscriptionIndexDetails, fetchSatDetails } from "./api"
+import { fetchContent, fetchMetadata, fetchSatAtInscriptionIndexDetails, fetchSatDetailsHTML } from "./api"
 import { getNetworkFromDID, getPrefix } from "./utils"
 
 export const resolve = async (
@@ -34,7 +34,7 @@ export const resolve = async (
       }
     }
   }
-  const details = await fetchSatDetails(sat, options);
+  const details = await fetchSatDetailsHTML(sat, options);
   const {id} = await fetchSatAtInscriptionIndexDetails(sat, -1, options);
   const content = await fetchContent(id, options)
   if (content === '🔥') {
@@ -60,7 +60,7 @@ export const resolve = async (
   } else if (didDocument.id !== did) {
     error = `DID Document id ${didDocument.id} does not match ${did}`;
   } else if (
-    did.split(prefix)[1] !== details.num.toString() &&
+    did.split(prefix)[1] !== details.num &&
     did.split(prefix)[1] !== details.name &&
     did.split(prefix)[1] !== details.decimal
   ) {

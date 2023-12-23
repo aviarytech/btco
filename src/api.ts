@@ -1,3 +1,4 @@
+import cheerio from "cheerio";
 import { NetworkType, decodeCborHex, getApi } from "./utils";
 
 export async function fetchSatNumber(output: string, options = {network: 'mainnet'}): Promise<number | null> {
@@ -16,6 +17,40 @@ export async function fetchSatDetails(sat: number | string, options = {network: 
     const response = await fetch(`${getApi(options.network as NetworkType)}/sat/${sat}`, {headers: {Accept: 'application/json'}});
     const {number, name, decimal, inscriptions, satpoint} = await response.json();
     return {num: number, name, decimal, inscriptions, satpoint};
+  } catch (e: any) {
+    console.error(e.message)
+    return {};
+  }
+}
+
+export async function fetchSatDetailsHTML(sat: number | string, options = {network: 'mainnet'}) {
+  try {
+    const response = await fetch(`${getApi(options.network as NetworkType)}/sat/${sat}`);
+    const text = await response.text();
+    const $ = cheerio.load(text);
+
+    const decimal = $('dt').filter(function() {
+      return $(this).text().trim() === 'decimal';
+    }).next('dd').text();
+
+    const name = $('dt').filter(function() {
+      return $(this).text().trim() === 'name';
+    }).next('dd').text();
+
+    const location = $('dt').filter(function() {
+      return $(this).text().trim() === 'location';
+    }).next('dd').text();
+
+    const inscriptions: string[] = [];
+    $('dd.thumbnails a').each(function() {
+      const href = $(this).attr('href');
+      const id = href?.split('/').pop();
+      if (id) {
+        inscriptions.push(id);
+      }
+    });
+
+    return {num: sat, name, decimal, inscriptions, satpoint: location};
   } catch (e: any) {
     console.error(e.message)
     return {};
